@@ -33,16 +33,13 @@ const todosSlice = createSlice({
       }
     },
 
-    // Edit an existing todo
     editTodo: (state, action) => {
       const { id, title, description, status } = action.payload;
 
-      // Find in active todos
-      let todo = state.active.todos.find((todo) => todo.id === id);
-      if (!todo) {
-        // Find in completed todos if not in active
-        todo = state.completed.todos.find((todo) => todo.id === id);
-      }
+      // Find the todo in active or completed
+      let todo =
+        state.active.todos.find((todo) => todo.id === id) ||
+        state.completed.todos.find((todo) => todo.id === id);
 
       // Update todo fields
       if (todo) {
@@ -50,19 +47,15 @@ const todosSlice = createSlice({
         todo.description = description;
         todo.status = status;
 
-        // If status changed, move between active and completed
-        if (
-          status === "Completed" &&
-          state.active.todos.some((todo) => todo.id === id)
-        ) {
+        // If the status changes, move the todo between active and completed lists
+        if (status === "Completed") {
+          // If it's in active, remove and add to completed
           state.active.todos = state.active.todos.filter(
             (todo) => todo.id !== id
           );
           state.completed.todos.unshift(todo);
-        } else if (
-          status === "On-Going" &&
-          state.completed.todos.some((todo) => todo.id === id)
-        ) {
+        } else if (status === "On-Going") {
+          // If it's in completed, remove and add to active
           state.completed.todos = state.completed.todos.filter(
             (todo) => todo.id !== id
           );

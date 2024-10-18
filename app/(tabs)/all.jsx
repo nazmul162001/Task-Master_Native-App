@@ -178,8 +178,19 @@ const AllTasks = () => {
                     </Text>
                   </View>
                   <View className="flex-row">
+                    {/* Edit Button - Pass the todo data */}
                     <TouchableOpacity
-                      onPress={() => router.push("/create")}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/create",
+                          params: {
+                            id: todo.id,
+                            title: todo.title,
+                            description: todo.description,
+                            status: todo.status,
+                          },
+                        })
+                      }
                       className="mr-2"
                     >
                       <Icon name="pencil" size={20} color="#3498db" />

@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -10,20 +10,36 @@ import {
   Text,
   View,
 } from "react-native";
-import { useDispatch } from "react-redux"; // Import useDispatch
+import { useDispatch } from "react-redux";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 import { images } from "../../constants";
-import { addTodo } from "../redux/reducers/TodoReducer";
-// import { addTodo } from "../../redux/reducers/TodoReducer"; // Import addTodo action
+import { addTodo, editTodo } from "../redux/reducers/TodoReducer";
 
 const Create = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("On-Going");
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  const dispatch = useDispatch(); // Initialize dispatch
+  const dispatch = useDispatch();
+  const params = useLocalSearchParams();
+
+  useEffect(() => {
+    if (params?.id) {
+      setIsEditMode(true);
+      setTitle(params.title || "");
+      setDescription(params.description || "");
+      setStatus(params.status || "On-Going");
+    } else {
+      // Reset the form when creating a new todo
+      setIsEditMode(false);
+      setTitle("");
+      setDescription("");
+      setStatus("On-Going");
+    }
+  }, [params.id]); // Only run when the id changes
 
   const handleSubmit = () => {
     if (!title || !description) {
@@ -33,20 +49,22 @@ const Create = () => {
 
     setIsLoading(true);
 
-    // Dispatch the addTodo action with the form data
-    dispatch(
-      addTodo({
-        title,
-        description,
-        status,
-      })
-    );
+    const todoData = {
+      id: params.id, // ensure id is passed correctly
+      title,
+      description,
+      status,
+    };
+
+    if (isEditMode) {
+      dispatch(editTodo(todoData));
+    } else {
+      dispatch(addTodo(todoData));
+    }
 
     // Simulate a network request or async action
     setTimeout(() => {
-      // After processing
       setIsLoading(false);
-      // Reset the form fields
       setTitle("");
       setDescription("");
       setStatus("On-Going");
@@ -108,7 +126,7 @@ const Create = () => {
 
             {/* Save Button */}
             <CustomButton
-              title="Save Todo"
+              title={isEditMode ? "Update Todo" : "Save Todo"}
               handlePress={handleSubmit}
               containerStyles="w-full"
               isLoading={isLoading}
