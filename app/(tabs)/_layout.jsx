@@ -55,6 +55,22 @@ const TabsLayout = () => {
         />
 
         <Tabs.Screen
+          name="completed"
+          options={{
+            title: "completed",
+            headerShown: false,
+            tabBarIcon: ({ focused, color }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Completed"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
           name="ongoing"
           options={{
             title: "On-Going",
@@ -64,22 +80,6 @@ const TabsLayout = () => {
                 icon={icons.bookmark}
                 color={color}
                 name="On-Going"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-
-        <Tabs.Screen
-          name="pending"
-          options={{
-            title: "Pending",
-            headerShown: false,
-            tabBarIcon: ({ focused, color }) => (
-              <TabIcon
-                icon={icons.profile}
-                color={color}
-                name="Pending"
                 focused={focused}
               />
             ),
