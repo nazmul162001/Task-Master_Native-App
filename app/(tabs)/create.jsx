@@ -9,9 +9,12 @@ import {
   Text,
   View,
 } from "react-native";
+import { useDispatch } from "react-redux"; // Import useDispatch
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 import { images } from "../../constants";
+import { addTodo } from "../redux/reducers/TodoReducer";
+// import { addTodo } from "../../redux/reducers/TodoReducer"; // Import addTodo action
 
 const Create = () => {
   const [title, setTitle] = useState("");
@@ -19,8 +22,25 @@ const Create = () => {
   const [status, setStatus] = useState("On-Going");
   const [isLoading, setIsLoading] = useState(false);
 
+  const dispatch = useDispatch(); // Initialize dispatch
+
   const handleSubmit = () => {
+    if (!title || !description) {
+      alert("Please fill in all fields");
+      return;
+    }
+
     setIsLoading(true);
+
+    // Dispatch the addTodo action with the form data
+    dispatch(
+      addTodo({
+        title,
+        description,
+        status,
+      })
+    );
+
     // Simulate a network request or async action
     setTimeout(() => {
       // After processing
