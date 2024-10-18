@@ -1,6 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -14,57 +14,70 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { completeTodo, deleteTodo } from "../redux/reducers/TodoReducer";
 
+// Move filtering logic outside the component
+const getFilteredTodos = (todos, filter) => {
+  switch (filter) {
+    case "Completed":
+      return todos.filter((todo) => todo.status === "Completed");
+    case "On-Going":
+      return todos.filter((todo) => todo.status !== "Completed");
+    default:
+      return todos;
+  }
+};
+
 const AllTasks = () => {
   const [selectedFilter, setSelectedFilter] = useState("See All");
 
-  // Get the active and completed todos from Redux store
-  const { active, completed } = useSelector((state) => state.todos);
+  // Use more specific selectors
+  const activeTodos = useSelector((state) => state.todos.active.todos);
+  const completedTodos = useSelector((state) => state.todos.completed.todos);
 
   const dispatch = useDispatch();
 
-  // Combine active and completed todos for the "All" filter
-  const allTodos = [...active.todos, ...completed.todos];
+  // Memoize allTodos
+  const allTodos = useMemo(
+    () => [...activeTodos, ...completedTodos],
+    [activeTodos, completedTodos]
+  );
 
-  // Function to filter todos based on the selected filter
-  const getFilteredTodos = () => {
-    switch (selectedFilter) {
-      case "Completed":
-        return completed.todos;
-      case "On-Going":
-        return active.todos;
-      default:
-        return allTodos;
-    }
-  };
+  // Memoize filteredTodos
+  const filteredTodos = useMemo(
+    () => getFilteredTodos(allTodos, selectedFilter),
+    [allTodos, selectedFilter]
+  );
 
-  // Toggle the status of a todo (On-Going ↔ Completed)
-  const toggleTodoStatus = (todo) => {
-    dispatch(completeTodo({ id: todo.id }));
+  // Use useCallback for functions passed as props
+  const toggleTodoStatus = useCallback(
+    (todo) => {
+      dispatch(completeTodo({ id: todo.id }));
 
-    const statusMessage =
-      todo.status === "Completed"
-        ? "Marked as On-Going"
-        : "Marked as Completed";
-    Toast.show({
-      type: "success",
-      text1: "Todo Status Updated",
-      text2: statusMessage,
-      topOffset: 50,
-    });
-  };
+      const statusMessage =
+        todo.status === "Completed"
+          ? "Marked as On-Going"
+          : "Marked as Completed";
+      Toast.show({
+        type: "success",
+        text1: "Todo Status Updated",
+        text2: statusMessage,
+        topOffset: 50,
+      });
+    },
+    [dispatch]
+  );
 
-  // Delete a todo
-  const handleDeleteTodo = (todoId) => {
-    dispatch(deleteTodo({ id: todoId }));
-    Toast.show({
-      type: "success",
-      text1: "Todo Deleted",
-      text2: "The task has been successfully deleted.",
-      topOffset: 50,
-    });
-  };
-
-  const filteredTodos = getFilteredTodos();
+  const handleDeleteTodo = useCallback(
+    (todoId) => {
+      dispatch(deleteTodo({ id: todoId }));
+      Toast.show({
+        type: "success",
+        text1: "Todo Deleted",
+        text2: "The task has been successfully deleted.",
+        topOffset: 50,
+      });
+    },
+    [dispatch]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -107,7 +120,7 @@ const AllTasks = () => {
               <Icon name="check-circle" size={24} color="#fff" />
             </View>
             <Text className="text-white font-bold">Completed</Text>
-            <Text className="text-white">{completed.todos.length} Tasks</Text>
+            <Text className="text-white">{completedTodos.length} Tasks</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="w-[48%] bg-green-500 rounded-xl p-4 mb-4">
@@ -115,7 +128,7 @@ const AllTasks = () => {
               <Icon name="progress-clock" size={24} color="#fff" />
             </View>
             <Text className="text-white font-bold">On-Going</Text>
-            <Text className="text-white">{active.todos.length} Tasks</Text>
+            <Text className="text-white">{activeTodos.length} Tasks</Text>
           </TouchableOpacity>
         </View>
 
