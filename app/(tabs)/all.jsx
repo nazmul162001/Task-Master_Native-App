@@ -1,3 +1,4 @@
+import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -24,6 +25,18 @@ const AllTasks = () => {
     },
   ]);
 
+  // Add this new function to filter todos
+  const getFilteredTodos = () => {
+    switch (selectedFilter) {
+      case "Completed":
+        return todos.filter((todo) => todo.status === "completed");
+      case "On-Going":
+        return todos.filter((todo) => todo.status === "ongoing");
+      default:
+        return todos;
+    }
+  };
+
   const toggleTodo = (index) => {
     setTodos(
       todos.map((todo, i) =>
@@ -37,6 +50,10 @@ const AllTasks = () => {
     );
   };
 
+  const filteredTodos = getFilteredTodos();
+  const completedTodos = todos.filter((todo) => todo.status === "completed");
+  const ongoingTodos = todos.filter((todo) => todo.status === "ongoing");
+
   return (
     <SafeAreaView className="flex-1 bg-black">
       <ScrollView className="flex-1 p-4">
@@ -44,7 +61,7 @@ const AllTasks = () => {
           Manage Your Daily Task
         </Text>
 
-        {/* <View className="mb-4">
+        <View className="mb-4">
           <Picker
             selectedValue={selectedFilter}
             onValueChange={(itemValue) => setSelectedFilter(itemValue)}
@@ -54,7 +71,7 @@ const AllTasks = () => {
             <Picker.Item label="Completed" value="Completed" />
             <Picker.Item label="On-Going" value="On-Going" />
           </Picker>
-        </View> */}
+        </View>
 
         <View className="flex-row flex-wrap justify-between">
           <TouchableOpacity className="w-[48%] bg-blue-500 rounded-xl p-4 mb-4">
@@ -70,7 +87,7 @@ const AllTasks = () => {
               <Icon name="format-list-checks" size={24} color="#fff" />
             </View>
             <Text className="text-white font-bold">All Tasks</Text>
-            <Text className="text-white">0 Tasks</Text>
+            <Text className="text-white">{todos.length} Tasks</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="w-[48%] bg-yellow-500 rounded-xl p-4 mb-4">
@@ -78,7 +95,7 @@ const AllTasks = () => {
               <Icon name="check-circle" size={24} color="#fff" />
             </View>
             <Text className="text-white font-bold">Completed</Text>
-            <Text className="text-white">0 Tasks</Text>
+            <Text className="text-white">{completedTodos.length} Tasks</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="w-[48%] bg-green-500 rounded-xl p-4 mb-4">
@@ -86,7 +103,7 @@ const AllTasks = () => {
               <Icon name="progress-clock" size={24} color="#fff" />
             </View>
             <Text className="text-white font-bold">On-Going</Text>
-            <Text className="text-white">0 Tasks</Text>
+            <Text className="text-white">{ongoingTodos.length} Tasks</Text>
           </TouchableOpacity>
         </View>
 
@@ -94,54 +111,64 @@ const AllTasks = () => {
           <Text className="text-center text-white text-2xl font-bold mb-4">
             All Your Todos
           </Text>
-          <View className=" rounded-lg">
-            {todos.map((todo, index) => (
-              <View
-                key={index}
-                className="bg-gray-800 p-2 rounded-lg mb-3 flex-row items-center"
-              >
-                <TouchableOpacity onPress={() => toggleTodo(index)}>
-                  <Icon
-                    name={
-                      todo.status === "completed"
-                        ? "check-circle"
-                        : "circle-outline"
-                    }
-                    size={20}
-                    color={todo.status === "completed" ? "#4CAF50" : "#808080"}
-                  />
-                </TouchableOpacity>
-                <View className="ml-2 flex-1">
-                  <Text
-                    className={`text-white text-lg font-semibold ${
-                      todo.status === "completed" ? "line-through" : ""
-                    }`}
-                  >
-                    {todo.title}
-                  </Text>
-                  <Text
-                    className={`text-gray-400 ${
-                      todo.status === "completed" ? "line-through" : ""
-                    }`}
-                  >
-                    {todo.description}
-                  </Text>
-                </View>
-                <View className="flex-row">
-                  <TouchableOpacity
-                    onPress={() => router.push("/create")}
-                    className="mr-2"
-                  >
-                    <Icon name="pencil" size={20} color="#3498db" />
+          <View className="rounded-lg">
+            {filteredTodos.length > 0 ? (
+              filteredTodos.map((todo, index) => (
+                <View
+                  key={index}
+                  className="bg-gray-800 p-2 rounded-lg mb-3 flex-row items-center"
+                >
+                  <TouchableOpacity onPress={() => toggleTodo(index)}>
+                    <Icon
+                      name={
+                        todo.status === "completed"
+                          ? "check-circle"
+                          : "circle-outline"
+                      }
+                      size={20}
+                      color={
+                        todo.status === "completed" ? "#4CAF50" : "#808080"
+                      }
+                    />
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => console.log("Delete todo", index)}
-                  >
-                    <Icon name="trash-can" size={20} color="#e74c3c" />
-                  </TouchableOpacity>
+                  <View className="ml-2 flex-1">
+                    <Text
+                      className={`text-white text-lg font-semibold ${
+                        todo.status === "completed" ? "line-through" : ""
+                      }`}
+                    >
+                      {todo.title}
+                    </Text>
+                    <Text
+                      className={`text-gray-400 ${
+                        todo.status === "completed" ? "line-through" : ""
+                      }`}
+                    >
+                      {todo.description}
+                    </Text>
+                  </View>
+                  <View className="flex-row">
+                    <TouchableOpacity
+                      onPress={() => router.push("/create")}
+                      className="mr-2"
+                    >
+                      <Icon name="pencil" size={20} color="#3498db" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => console.log("Delete todo", index)}
+                    >
+                      <Icon name="trash-can" size={20} color="#e74c3c" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
+              ))
+            ) : (
+              <View className="bg-gray-800 p-4 rounded-lg">
+                <Text className="text-white text-center text-lg">
+                  No tasks found for the selected filter.
+                </Text>
               </View>
-            ))}
+            )}
           </View>
         </View>
       </ScrollView>
