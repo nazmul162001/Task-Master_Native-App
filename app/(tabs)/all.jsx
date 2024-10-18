@@ -3,14 +3,18 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message"; // Import toast
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { completeTodo, deleteTodo } from "../redux/reducers/TodoReducer";
 
 const AllTasks = () => {
   const [selectedFilter, setSelectedFilter] = useState("See All");
 
   // Get the active and completed todos from Redux store
   const { active, completed } = useSelector((state) => state.todos);
+
+  const dispatch = useDispatch();
 
   // Combine active and completed todos for the "All" filter
   const allTodos = [...active.todos, ...completed.todos];
@@ -27,21 +31,48 @@ const AllTasks = () => {
     }
   };
 
-  // You no longer need the hardcoded state for todos
+  // Toggle the status of a todo (On-Going ↔ Completed)
+  const toggleTodoStatus = (todo) => {
+    dispatch(completeTodo({ id: todo.id }));
+
+    // Show toast message with dynamic status update
+    const statusMessage =
+      todo.status === "Completed"
+        ? "Marked as On-Going"
+        : "Marked as Completed";
+    Toast.show({
+      type: "success",
+      text1: "Todo Status Updated",
+      text2: statusMessage,
+      position: "top", // Change position to top
+    });
+  };
+
+  // Delete a todo
+  const handleDeleteTodo = (todoId) => {
+    dispatch(deleteTodo({ id: todoId }));
+    Toast.show({
+      type: "success",
+      text1: "Todo Deleted",
+      text2: "The task has been successfully deleted.",
+      position: "top", // Change position to top
+    });
+  };
+
   const filteredTodos = getFilteredTodos();
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-900">
+    <SafeAreaView className="flex-1 bg-black">
       <ScrollView className="flex-1 p-4">
         <Text className="text-white text-2xl font-bold mb-4">
           Manage Your Daily Task
         </Text>
 
-        <View className="mb-4 bg-gray-500 rounded-lg">
+        <View className="mb-4 bg-gray-800 text-white rounded-lg">
           <Picker
             selectedValue={selectedFilter}
             onValueChange={(itemValue) => setSelectedFilter(itemValue)}
-            className="bg-gray-800 text-white"
+            style={{ color: "white" }}
           >
             <Picker.Item label="See All" value="See All" />
             <Picker.Item label="Completed" value="Completed" />
@@ -94,12 +125,12 @@ const AllTasks = () => {
           </Text>
           <View className="rounded-lg">
             {filteredTodos.length > 0 ? (
-              filteredTodos.map((todo, index) => (
+              filteredTodos.map((todo) => (
                 <View
                   key={todo.id}
                   className="bg-gray-800 p-2 rounded-lg mb-3 flex-row items-center"
                 >
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => toggleTodoStatus(todo)}>
                     <Icon
                       name={
                         todo.status === "Completed"
@@ -135,9 +166,7 @@ const AllTasks = () => {
                     >
                       <Icon name="pencil" size={20} color="#3498db" />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => console.log("Delete todo", index)}
-                    >
+                    <TouchableOpacity onPress={() => handleDeleteTodo(todo.id)}>
                       <Icon name="trash-can" size={20} color="#e74c3c" />
                     </TouchableOpacity>
                   </View>
@@ -153,6 +182,9 @@ const AllTasks = () => {
           </View>
         </View>
       </ScrollView>
+      <Text>
+        <Toast />
+      </Text>
     </SafeAreaView>
   );
 };

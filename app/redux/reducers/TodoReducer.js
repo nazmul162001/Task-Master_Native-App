@@ -82,20 +82,30 @@ const todosSlice = createSlice({
       );
     },
 
-    // Mark a todo as completed
+    // Toggle the todo between Completed and On-Going
     completeTodo: (state, action) => {
       const { id } = action.payload;
 
-      // Find the todo in active list
-      const todo = state.active.todos.find((todo) => todo.id === id);
+      // Check if the todo is in active list
+      let todo = state.active.todos.find((todo) => todo.id === id);
+
+      // If the todo is active, mark it as Completed
       if (todo) {
         todo.status = "Completed";
-
-        // Move to completed todos list
         state.active.todos = state.active.todos.filter(
           (todo) => todo.id !== id
         );
         state.completed.todos.unshift(todo);
+      } else {
+        // If the todo is in the completed list, mark it as On-Going
+        todo = state.completed.todos.find((todo) => todo.id === id);
+        if (todo) {
+          todo.status = "On-Going";
+          state.completed.todos = state.completed.todos.filter(
+            (todo) => todo.id !== id
+          );
+          state.active.todos.unshift(todo);
+        }
       }
     },
   },
