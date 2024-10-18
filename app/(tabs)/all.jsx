@@ -1,4 +1,4 @@
-import { Picker } from "@react-native-picker/picker";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -44,7 +44,7 @@ const AllTasks = () => {
           Manage Your Daily Task
         </Text>
 
-        <View className="mb-4">
+        {/* <View className="mb-4">
           <Picker
             selectedValue={selectedFilter}
             onValueChange={(itemValue) => setSelectedFilter(itemValue)}
@@ -54,7 +54,7 @@ const AllTasks = () => {
             <Picker.Item label="Completed" value="Completed" />
             <Picker.Item label="On-Going" value="On-Going" />
           </Picker>
-        </View>
+        </View> */}
 
         <View className="flex-row flex-wrap justify-between">
           <TouchableOpacity className="w-[48%] bg-blue-500 rounded-xl p-4 mb-4">
@@ -126,6 +126,19 @@ const AllTasks = () => {
                   >
                     {todo.description}
                   </Text>
+                </View>
+                <View className="flex-row">
+                  <TouchableOpacity
+                    onPress={() => router.push("/create")}
+                    className="mr-2"
+                  >
+                    <Icon name="pencil" size={20} color="#3498db" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => console.log("Delete todo", index)}
+                  >
+                    <Icon name="trash-can" size={20} color="#e74c3c" />
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
