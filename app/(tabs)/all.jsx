@@ -109,7 +109,12 @@ const AllTasks = () => {
 
         <View>
           <Text className="text-center text-white text-2xl font-bold mb-4">
-            All Your Todos
+            {selectedFilter === "Completed"
+              ? "Completed"
+              : selectedFilter === "On-Going"
+              ? "On-Going"
+              : "All"}{" "}
+            Todos
           </Text>
           <View className="rounded-lg">
             {filteredTodos.length > 0 ? (
