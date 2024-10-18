@@ -1,9 +1,15 @@
 import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message"; // Import toast
+import Toast from "react-native-toast-message";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { completeTodo, deleteTodo } from "../redux/reducers/TodoReducer";
@@ -35,7 +41,6 @@ const AllTasks = () => {
   const toggleTodoStatus = (todo) => {
     dispatch(completeTodo({ id: todo.id }));
 
-    // Show toast message with dynamic status update
     const statusMessage =
       todo.status === "Completed"
         ? "Marked as On-Going"
@@ -44,7 +49,7 @@ const AllTasks = () => {
       type: "success",
       text1: "Todo Status Updated",
       text2: statusMessage,
-      position: "top", // Change position to top
+      topOffset: 50,
     });
   };
 
@@ -55,7 +60,7 @@ const AllTasks = () => {
       type: "success",
       text1: "Todo Deleted",
       text2: "The task has been successfully deleted.",
-      position: "top", // Change position to top
+      topOffset: 50,
     });
   };
 
@@ -182,11 +187,21 @@ const AllTasks = () => {
           </View>
         </View>
       </ScrollView>
-      <Text>
+      <View style={styles.toastContainer}>
         <Toast />
-      </Text>
+      </View>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  toastContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+  },
+});
 
 export default AllTasks;

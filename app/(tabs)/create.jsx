@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Image,
@@ -49,11 +50,12 @@ const Create = () => {
       setTitle("");
       setDescription("");
       setStatus("On-Going");
+      router.push("/all");
     }, 2000);
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-800">
+    <SafeAreaView className="flex-1 bg-black">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
