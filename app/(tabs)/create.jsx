@@ -50,7 +50,7 @@ const Create = () => {
     setIsLoading(true);
 
     const todoData = {
-      id: params.id, // ensure id is passed correctly
+      id: params.id || Date.now(), // Use existing id or generate a new one
       title,
       description,
       status,
@@ -65,11 +65,16 @@ const Create = () => {
     // Simulate a network request or async action
     setTimeout(() => {
       setIsLoading(false);
+
+      // Clear form fields
       setTitle("");
       setDescription("");
-      setStatus("On-Going");
-      router.push("/all");
-    }, 2000);
+      setStatus("On-Going"); // Reset to default status
+
+      // Remove params and navigate to '/all' without params
+      router.replace("/all"); // Use replace to clear the params in the URL
+      setIsEditMode(false);
+    }, 1000);
   };
 
   return (

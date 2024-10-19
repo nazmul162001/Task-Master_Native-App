@@ -33,6 +33,9 @@ const AllTasks = () => {
   const activeTodos = useSelector((state) => state.todos.active.todos);
   const completedTodos = useSelector((state) => state.todos.completed.todos);
 
+  // console.log("Active Todos:", JSON.stringify(activeTodos, null, 2)); // Log active todos
+  // console.log("Completed Todos:", JSON.stringify(completedTodos, null, 2)); // Log completed todos
+
   const dispatch = useDispatch();
 
   // Memoize allTodos
@@ -41,17 +44,34 @@ const AllTasks = () => {
     [activeTodos, completedTodos]
   );
 
+  const todosState = useSelector((state) => state.todos);
+  console.log(
+    "Redux state after editTodo:",
+    JSON.stringify(todosState, null, 2)
+  ); // Display the full state
   // Memoize filteredTodos
-  const filteredTodos = useMemo(
-    () => getFilteredTodos(allTodos, selectedFilter),
-    [allTodos, selectedFilter]
-  );
+  // const filteredTodos = useMemo(
+  //   () => getFilteredTodos(allTodos, selectedFilter),
+  //   [allTodos, selectedFilter]
+  // );
+
+  const filteredTodos = useMemo(() => {
+    const filtered = getFilteredTodos(allTodos, selectedFilter);
+    console.log("Filtered Todos after state update:", filtered); // Re-check filtering
+    return filtered;
+  }, [allTodos, selectedFilter]);
+
+  // useMemo(() => {
+  //   const filtered = getFilteredTodos(allTodos, selectedFilter);
+  //   console.log("Filtered Todos:", filtered); // Log to see if filtering works correctly
+  //   return filtered;
+  // }, [allTodos, selectedFilter]);
 
   // Use useCallback for functions passed as props
   const toggleTodoStatus = useCallback(
     (todo) => {
       dispatch(completeTodo({ id: todo.id }));
-
+      console.log("Todo after dispatch:", todo);
       const statusMessage =
         todo.status === "Completed"
           ? "Marked as On-Going"

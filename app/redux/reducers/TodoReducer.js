@@ -36,30 +36,54 @@ const todosSlice = createSlice({
     editTodo: (state, action) => {
       const { id, title, description, status } = action.payload;
 
-      // Find the todo in active or completed
-      let todo =
-        state.active.todos.find((todo) => todo.id === id) ||
-        state.completed.todos.find((todo) => todo.id === id);
+      // Convert the id to a number to match the stored id format
+      const todoId = Number(id);
 
-      // Update todo fields
-      if (todo) {
-        todo.title = title;
-        todo.description = description;
-        todo.status = status;
+      // Find the todo in active.todos
+      const activeTodoIndex = state.active.todos.findIndex(
+        (todo) => todo.id === todoId
+      );
+      // Find the todo in completed.todos
+      const completedTodoIndex = state.completed.todos.findIndex(
+        (todo) => todo.id === todoId
+      );
 
-        // If the status changes, move the todo between active and completed lists
+      let updatedTodo = null; // Initialize updatedTodo
+
+      // Check if the todo is in the active list
+      if (activeTodoIndex !== -1) {
+        updatedTodo = {
+          ...state.active.todos[activeTodoIndex],
+          title,
+          description,
+          status,
+        };
+
+        // If the status changes to Completed, move it to the completed list
         if (status === "Completed") {
-          // If it's in active, remove and add to completed
-          state.active.todos = state.active.todos.filter(
-            (todo) => todo.id !== id
-          );
-          state.completed.todos.unshift(todo);
-        } else if (status === "On-Going") {
-          // If it's in completed, remove and add to active
-          state.completed.todos = state.completed.todos.filter(
-            (todo) => todo.id !== id
-          );
-          state.active.todos.unshift(todo);
+          state.active.todos.splice(activeTodoIndex, 1); // Remove from active list
+          state.completed.todos.unshift(updatedTodo); // Add to completed list
+        } else {
+          // Otherwise, update in place in the active list
+          state.active.todos[activeTodoIndex] = updatedTodo;
+        }
+      }
+      // Check if the todo is in the completed list
+      else if (completedTodoIndex !== -1) {
+        updatedTodo = {
+          ...state.completed.todos[completedTodoIndex],
+          title,
+          description,
+          status,
+        };
+
+        // If the status changes to On-Going, move it to the active list
+        if (status === "On-Going") {
+          state.completed.todos.splice(completedTodoIndex, 1); // Remove from completed list
+          state.active.todos.unshift(updatedTodo); // Add to active list
+        } else {
+          // Otherwise, update in place in the completed list
+          state.completed.todos[completedTodoIndex] = updatedTodo;
         }
       }
     },
