@@ -54,7 +54,7 @@ const TabsLayout = () => {
           }}
         />
 
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="completed"
           options={{
             title: "completed",
@@ -84,7 +84,7 @@ const TabsLayout = () => {
               />
             ),
           }}
-        />
+        /> */}
 
         <Tabs.Screen
           name="create"
