@@ -74,8 +74,11 @@ const Create = () => {
       setDescription("");
       setStatus("On-Going"); // Reset to default status
 
-      // Navigate to '/all' without params
-      router.replace("/all");
+      // Navigate to '/all' with newTodoId param to trigger animation
+      router.push({
+        pathname: "/all",
+        params: { newTodoId: todoData.id }, // Pass newTodoId to the AllTasks component
+      });
     }, 1000);
   };
 

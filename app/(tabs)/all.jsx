@@ -1,10 +1,20 @@
 import { Picker } from "@react-native-picker/picker";
-import React, { useCallback, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
+  Animated,
+  LayoutAnimation,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  UIManager,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,6 +23,14 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useDispatch, useSelector } from "react-redux";
 import EditTodoModal from "../../components/EditModal";
 import { completeTodo, deleteTodo } from "../redux/reducers/TodoReducer";
+
+// Enable LayoutAnimation for Android
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 // Move filtering logic outside the component
 const getFilteredTodos = (todos, filter) => {
@@ -35,6 +53,7 @@ const AllTasks = () => {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentTodo, setCurrentTodo] = useState(null);
+  const animationRefs = useRef({}); // Store Animated values for each todo
 
   const dispatch = useDispatch();
 
@@ -45,22 +64,22 @@ const AllTasks = () => {
   );
 
   const todosState = useSelector((state) => state.todos);
-  console.log(
-    "Redux state after editTodo:",
-    JSON.stringify(todosState, null, 2)
-  );
-
   const filteredTodos = useMemo(() => {
     const filtered = getFilteredTodos(allTodos, selectedFilter);
-    console.log("Filtered Todos after state update:", filtered); // Re-check filtering
     return filtered;
   }, [allTodos, selectedFilter]);
+
+  // Initialize Animated value for each todo on first render
+  const initializeAnimations = (todo) => {
+    if (!animationRefs.current[todo.id]) {
+      animationRefs.current[todo.id] = new Animated.Value(0);
+    }
+  };
 
   // Use useCallback for functions passed as props
   const toggleTodoStatus = useCallback(
     (todo) => {
       dispatch(completeTodo({ id: todo.id }));
-      console.log("Todo after dispatch:", todo);
       const statusMessage =
         todo.status === "Completed"
           ? "Marked as On-Going"
@@ -77,12 +96,21 @@ const AllTasks = () => {
 
   const handleDeleteTodo = useCallback(
     (todoId) => {
-      dispatch(deleteTodo({ id: todoId }));
-      Toast.show({
-        type: "success",
-        text1: "Todo Deleted",
-        text2: "The task has been successfully deleted.",
-        topOffset: 50,
+      // Start the animation
+      Animated.timing(animationRefs.current[todoId], {
+        toValue: 1, // Move to the right
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        // After the animation, delete the todo from state
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        dispatch(deleteTodo({ id: todoId }));
+        Toast.show({
+          type: "success",
+          text1: "Todo Deleted",
+          text2: "The task has been successfully deleted.",
+          topOffset: 50,
+        });
       });
     },
     [dispatch]
@@ -97,6 +125,21 @@ const AllTasks = () => {
     setIsModalVisible(false);
     setCurrentTodo(null); // Clear the todo after closing
   };
+
+  // Greetings message
+  const [greeting, setGreeting] = useState("");
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+
+    if (currentHour < 12) {
+      setGreeting("Good Morning");
+    } else if (currentHour >= 12 && currentHour < 18) {
+      setGreeting("Good Afternoon");
+    } else {
+      setGreeting("Good Evening");
+    }
+  }, []); // Run once on component mount
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -123,7 +166,7 @@ const AllTasks = () => {
               <Icon name="account" size={24} color="#fff" />
             </View>
             <Text className="text-white font-bold">Hi User,</Text>
-            <Text className="text-white">Good Morning</Text>
+            <Text className="text-white">{greeting}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="w-[48%] bg-purple-500 rounded-xl p-4 mb-4">
@@ -162,61 +205,80 @@ const AllTasks = () => {
           </Text>
           <View className="rounded-lg">
             {filteredTodos.length > 0 ? (
-              filteredTodos.map((todo) => (
-                <View
-                  key={todo.id}
-                  className="bg-gray-800 p-2 rounded-lg mb-3 flex-row items-center"
-                >
-                  <TouchableOpacity onPress={() => toggleTodoStatus(todo)}>
-                    <Icon
-                      name={
-                        todo.status === "Completed"
-                          ? "check-circle"
-                          : "circle-outline"
-                      }
-                      size={20}
-                      color={
-                        todo.status === "Completed" ? "#4CAF50" : "#808080"
-                      }
-                    />
-                  </TouchableOpacity>
-                  <View className="ml-2 flex-1">
-                    <Text
-                      className={`text-white text-lg font-semibold ${
-                        todo.status === "Completed" ? "line-through" : ""
-                      }`}
-                    >
-                      {todo.title}
-                    </Text>
-                    <Text
-                      className={`text-gray-400 ${
-                        todo.status === "Completed" ? "line-through" : ""
-                      }`}
-                    >
-                      {todo.description}
-                    </Text>
-                  </View>
-                  <View className="flex-row gap-2 pl-1">
-                    {/* Edit Button - Pass the todo data */}
-                    <TouchableOpacity
-                      onPress={() => openEditModal(todo)}
-                      className="bg-gray-700 bg-opacity-50 p-2 rounded-lg mr-2"
-                    >
-                      <Icon name="pencil" size={20} color="#ffffff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => handleDeleteTodo(todo.id)}
-                      className="bg-gray-700 p-2 rounded-lg"
-                    >
+              filteredTodos.map((todo) => {
+                initializeAnimations(todo); // Initialize animated value
+                return (
+                  <Animated.View
+                    key={todo.id}
+                    style={{
+                      transform: [
+                        {
+                          translateX: animationRefs.current[
+                            todo.id
+                          ].interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, 500], // Move to the right when delete
+                          }),
+                        },
+                      ],
+                      opacity: animationRefs.current[todo.id].interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [1, 0], // Fade out as it moves to the right
+                      }),
+                    }}
+                    className="bg-gray-800 p-2 rounded-lg mb-3 flex-row items-center"
+                  >
+                    <TouchableOpacity onPress={() => toggleTodoStatus(todo)}>
                       <Icon
-                        name="trash-can"
+                        name={
+                          todo.status === "Completed"
+                            ? "check-circle"
+                            : "circle-outline"
+                        }
                         size={20}
-                        color="rgba(255, 0, 0, 0.3)"
+                        color={
+                          todo.status === "Completed" ? "#4CAF50" : "#808080"
+                        }
                       />
                     </TouchableOpacity>
-                  </View>
-                </View>
-              ))
+                    <View className="ml-2 flex-1">
+                      <Text
+                        className={`text-white text-lg font-semibold ${
+                          todo.status === "Completed" ? "line-through" : ""
+                        }`}
+                      >
+                        {todo.title}
+                      </Text>
+                      <Text
+                        className={`text-gray-400 ${
+                          todo.status === "Completed" ? "line-through" : ""
+                        }`}
+                      >
+                        {todo.description}
+                      </Text>
+                    </View>
+                    <View className="flex-row gap-2 pl-1">
+                      {/* Edit Button - Pass the todo data */}
+                      <TouchableOpacity
+                        onPress={() => openEditModal(todo)}
+                        className="bg-gray-700 bg-opacity-50 p-2 rounded-lg mr-2"
+                      >
+                        <Icon name="pencil" size={20} color="#ffffff" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleDeleteTodo(todo.id)}
+                        className="bg-gray-700 p-2 rounded-lg"
+                      >
+                        <Icon
+                          name="trash-can"
+                          size={20}
+                          color="rgba(255, 0, 0, 0.3)"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </Animated.View>
+                );
+              })
             ) : (
               <View className="bg-gray-800 p-4 rounded-lg">
                 <Text className="text-white text-center text-lg">
