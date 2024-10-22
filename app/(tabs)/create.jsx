@@ -23,6 +23,10 @@ const Create = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  // New state for errors
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+
   const dispatch = useDispatch();
   const params = useLocalSearchParams();
 
@@ -41,10 +45,29 @@ const Create = () => {
     }
   }, [params.id]); // Only run when the id changes
 
+  const validateFields = () => {
+    let valid = true;
+
+    if (title.length < 6) {
+      setTitleError("Title must be at least 6 characters long");
+      valid = false;
+    } else {
+      setTitleError(""); // Clear error if valid
+    }
+
+    if (description.length < 10) {
+      setDescriptionError("Description must be at least 10 characters long");
+      valid = false;
+    } else {
+      setDescriptionError(""); // Clear error if valid
+    }
+
+    return valid;
+  };
+
   const handleSubmit = () => {
-    if (!title || !description) {
-      alert("Please fill in all fields");
-      return;
+    if (!validateFields()) {
+      return; // If validation fails, stop here
     }
 
     setIsLoading(true);
@@ -104,6 +127,12 @@ const Create = () => {
               handleChangeText={setTitle}
               otherStyles="w-full"
             />
+            {/* Error Message for Title */}
+            {titleError ? (
+              <Text className="text-red-500 text-sm w-full mt-2">
+                {titleError}
+              </Text>
+            ) : null}
 
             {/* Description Field */}
             <FormField
@@ -114,6 +143,12 @@ const Create = () => {
               otherStyles="w-full mt-4"
               multiline
             />
+            {/* Error Message for Description */}
+            {descriptionError ? (
+              <Text className="text-red-500 text-sm w-full mt-2">
+                {descriptionError}
+              </Text>
+            ) : null}
 
             {/* Status Switch */}
             <View className="w-full flex-row justify-between items-center my-4">
