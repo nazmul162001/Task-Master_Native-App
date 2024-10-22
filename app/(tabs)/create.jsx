@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router } from "expo-router";
+import React, { useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -14,36 +14,19 @@ import { useDispatch } from "react-redux";
 import CustomButton from "../../components/CustomButton";
 import FormField from "../../components/FormField";
 import { images } from "../../constants";
-import { addTodo, editTodo } from "../redux/reducers/TodoReducer";
+import { addTodo } from "../redux/reducers/TodoReducer";
 
 const Create = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("On-Going");
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
 
   // New state for errors
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
 
   const dispatch = useDispatch();
-  const params = useLocalSearchParams();
-
-  useEffect(() => {
-    if (params?.id) {
-      setIsEditMode(true);
-      setTitle(params.title || "");
-      setDescription(params.description || "");
-      setStatus(params.status || "On-Going");
-    } else {
-      // Reset the form when creating a new todo
-      setIsEditMode(false);
-      setTitle("");
-      setDescription("");
-      setStatus("On-Going");
-    }
-  }, [params.id]); // Only run when the id changes
 
   const validateFields = () => {
     let valid = true;
@@ -52,14 +35,14 @@ const Create = () => {
       setTitleError("Title must be at least 6 characters long");
       valid = false;
     } else {
-      setTitleError(""); // Clear error if valid
+      setTitleError("");
     }
 
     if (description.length < 10) {
       setDescriptionError("Description must be at least 10 characters long");
       valid = false;
     } else {
-      setDescriptionError(""); // Clear error if valid
+      setDescriptionError("");
     }
 
     return valid;
@@ -67,23 +50,20 @@ const Create = () => {
 
   const handleSubmit = () => {
     if (!validateFields()) {
-      return; // If validation fails, stop here
+      return;
     }
 
     setIsLoading(true);
 
     const todoData = {
-      id: params.id || Date.now(), // Use existing id or generate a new one
+      id: Date.now(), // Generate a new ID for the todo
       title,
       description,
       status,
     };
 
-    if (isEditMode) {
-      dispatch(editTodo(todoData));
-    } else {
-      dispatch(addTodo(todoData));
-    }
+    // Add the new todo
+    dispatch(addTodo(todoData));
 
     // Simulate a network request or async action
     setTimeout(() => {
@@ -94,9 +74,8 @@ const Create = () => {
       setDescription("");
       setStatus("On-Going"); // Reset to default status
 
-      // Remove params and navigate to '/all' without params
-      router.replace("/all"); // Use replace to clear the params in the URL
-      setIsEditMode(false);
+      // Navigate to '/all' without params
+      router.replace("/all");
     }, 1000);
   };
 
@@ -166,7 +145,7 @@ const Create = () => {
 
             {/* Save Button */}
             <CustomButton
-              title={isEditMode ? "Update Todo" : "Save Todo"}
+              title="Create Todo"
               handlePress={handleSubmit}
               containerStyles="w-full"
               isLoading={isLoading}

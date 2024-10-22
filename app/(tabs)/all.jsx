@@ -1,5 +1,4 @@
 import { Picker } from "@react-native-picker/picker";
-import { router } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   ScrollView,
@@ -12,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useDispatch, useSelector } from "react-redux";
+import EditTodoModal from "../../components/EditModal";
 import { completeTodo, deleteTodo } from "../redux/reducers/TodoReducer";
 
 // Move filtering logic outside the component
@@ -33,8 +33,8 @@ const AllTasks = () => {
   const activeTodos = useSelector((state) => state.todos.active.todos);
   const completedTodos = useSelector((state) => state.todos.completed.todos);
 
-  // console.log("Active Todos:", JSON.stringify(activeTodos, null, 2)); // Log active todos
-  // console.log("Completed Todos:", JSON.stringify(completedTodos, null, 2)); // Log completed todos
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentTodo, setCurrentTodo] = useState(null);
 
   const dispatch = useDispatch();
 
@@ -48,24 +48,13 @@ const AllTasks = () => {
   console.log(
     "Redux state after editTodo:",
     JSON.stringify(todosState, null, 2)
-  ); // Display the full state
-  // Memoize filteredTodos
-  // const filteredTodos = useMemo(
-  //   () => getFilteredTodos(allTodos, selectedFilter),
-  //   [allTodos, selectedFilter]
-  // );
+  );
 
   const filteredTodos = useMemo(() => {
     const filtered = getFilteredTodos(allTodos, selectedFilter);
     console.log("Filtered Todos after state update:", filtered); // Re-check filtering
     return filtered;
   }, [allTodos, selectedFilter]);
-
-  // useMemo(() => {
-  //   const filtered = getFilteredTodos(allTodos, selectedFilter);
-  //   console.log("Filtered Todos:", filtered); // Log to see if filtering works correctly
-  //   return filtered;
-  // }, [allTodos, selectedFilter]);
 
   // Use useCallback for functions passed as props
   const toggleTodoStatus = useCallback(
@@ -98,6 +87,16 @@ const AllTasks = () => {
     },
     [dispatch]
   );
+
+  const openEditModal = (todo) => {
+    setCurrentTodo(todo);
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setCurrentTodo(null); // Clear the todo after closing
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-black">
@@ -197,26 +196,23 @@ const AllTasks = () => {
                       {todo.description}
                     </Text>
                   </View>
-                  <View className="flex-row">
+                  <View className="flex-row gap-2 pl-1">
                     {/* Edit Button - Pass the todo data */}
                     <TouchableOpacity
-                      onPress={() =>
-                        router.push({
-                          pathname: "/create",
-                          params: {
-                            id: todo.id,
-                            title: todo.title,
-                            description: todo.description,
-                            status: todo.status,
-                          },
-                        })
-                      }
-                      className="mr-2"
+                      onPress={() => openEditModal(todo)}
+                      className="bg-gray-700 bg-opacity-50 p-2 rounded-lg mr-2"
                     >
-                      <Icon name="pencil" size={20} color="#3498db" />
+                      <Icon name="pencil" size={20} color="#ffffff" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteTodo(todo.id)}>
-                      <Icon name="trash-can" size={20} color="#e74c3c" />
+                    <TouchableOpacity
+                      onPress={() => handleDeleteTodo(todo.id)}
+                      className="bg-gray-700 p-2 rounded-lg"
+                    >
+                      <Icon
+                        name="trash-can"
+                        size={20}
+                        color="rgba(255, 0, 0, 0.3)"
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -231,6 +227,13 @@ const AllTasks = () => {
           </View>
         </View>
       </ScrollView>
+
+      <EditTodoModal
+        isVisible={isModalVisible}
+        todo={currentTodo}
+        onClose={closeModal}
+      />
+
       <View style={styles.toastContainer}>
         <Toast />
       </View>
