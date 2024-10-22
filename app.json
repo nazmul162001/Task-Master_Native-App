@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "e-learning",
-    "slug": "e-learning",
-    "scheme": "e-learning",
+    "name": "task-master",
+    "slug": "task-master",
+    "scheme": "task-master",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/task.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

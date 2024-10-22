@@ -26,6 +26,7 @@ const TabsLayout = () => {
   return (
     <>
       <Tabs
+        className=""
         screenOptions={{
           tabBarShowLabel: false,
           tabBarActiveTintColor: "#FFA001",
@@ -48,38 +49,6 @@ const TabsLayout = () => {
                 icon={icons.home}
                 color={color}
                 name="All"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-
-        <Tabs.Screen
-          name="completed"
-          options={{
-            title: "completed",
-            headerShown: false,
-            tabBarIcon: ({ focused, color }) => (
-              <TabIcon
-                icon={icons.profile}
-                color={color}
-                name="Completed"
-                focused={focused}
-              />
-            ),
-          }}
-        />
-
-        <Tabs.Screen
-          name="ongoing"
-          options={{
-            title: "On-Going",
-            headerShown: false,
-            tabBarIcon: ({ focused, color }) => (
-              <TabIcon
-                icon={icons.bookmark}
-                color={color}
-                name="On-Going"
                 focused={focused}
               />
             ),
