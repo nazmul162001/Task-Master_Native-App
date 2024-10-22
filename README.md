@@ -34,9 +34,9 @@ Task Master is a React Native application designed to help users manage their ta
 
 ## App Screenshots
 
-![Screenshot 1](https://drive.google.com/file/d/1D3wJPeWfYs4h0Tf9UGy4lO0b0LiwoKJU/view?usp=sharing)
-![Screenshot 2](https://drive.google.com/file/d/1kbbAP1nBLPhFhKMu3R8w3rrp3ZuCXe-2/view?usp=sharing)
-![Screenshot 3](https://drive.google.com/file/d/1Rv2oyAYz_VQSa8_-aTvtiUOZo_PerYtS/view?usp=sharing)
+![Screenshot 1](https://drive.google.com/uc?export=view&id=1D3wJPeWfYs4h0Tf9UGy4lO0b0LiwoKJU)
+![Screenshot 2](https://drive.google.com/uc?export=view&id=1kbbAP1nBLPhFhKMu3R8w3rrp3ZuCXe-2)
+![Screenshot 3](https://drive.google.com/uc?export=view&id=1Rv2oyAYz_VQSa8_-aTvtiUOZo_PerYtS)
 
 ## Installation
 
