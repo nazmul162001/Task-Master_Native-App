@@ -1,10 +1,16 @@
 # Task Master Native App
 
+## App Screenshots
+
+<p align="center">
+  <img src="https://drive.google.com/uc?export=view&id=1D3wJPeWfYs4h0Tf9UGy4lO0b0LiwoKJU" alt="Screenshot 1" width="30%" />
+  <img src="https://drive.google.com/uc?export=view&id=1kbbAP1nBLPhFhKMu3R8w3rrp3ZuCXe-2" alt="Screenshot 2" width="30%" />
+  <img src="https://drive.google.com/uc?export=view&id=1Rv2oyAYz_VQSa8_-aTvtiUOZo_PerYtS" alt="Screenshot 3" width="30%" />
+</p>
+
 ## Overview
 
 Task Master is a React Native application designed to help users manage their tasks. This app allows users to add, edit, delete, mark tasks as complete, and filter tasks based on their completion status. The tasks are stored locally on the device using AsyncStorage, making it easy for users to resume where they left off, even after closing the app. The app emphasizes simplicity, responsiveness, and a user-friendly interface.
-
-<br><br>
 
 ## [You can download the APK from this link](https://drive.google.com/uc?export=download&id=17FhodKMR8pXz-LF5MOmD-E5hHhMUD0Er)
 
@@ -31,14 +37,6 @@ Task Master is a React Native application designed to help users manage their ta
 - **AsyncStorage**: For persistent local task storage
 - **NativeWind**: For styling
 - **React Navigation**: For screen and tab navigation
-
-## App Screenshots
-
-<p align="center">
-  <img src="https://drive.google.com/uc?export=view&id=1D3wJPeWfYs4h0Tf9UGy4lO0b0LiwoKJU" alt="Screenshot 1" width="30%" />
-  <img src="https://drive.google.com/uc?export=view&id=1kbbAP1nBLPhFhKMu3R8w3rrp3ZuCXe-2" alt="Screenshot 2" width="30%" />
-  <img src="https://drive.google.com/uc?export=view&id=1Rv2oyAYz_VQSa8_-aTvtiUOZo_PerYtS" alt="Screenshot 3" width="30%" />
-</p>
 
 ## Installation
 
